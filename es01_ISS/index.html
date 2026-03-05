@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<<<<<<< HEAD
 
 <head>
   <meta charset="UTF-8">
@@ -144,14 +143,14 @@
 
     // --- GLOBE ---
     const loader = new THREE.TextureLoader();
-    const earthTexture = loader.load('/img/earth_black.jpg'); // Ensure this file exists!
+    const earthTexture = loader.load('img/earth_black.jpg'); // Ensure this file exists!
     const geometry = new THREE.SphereGeometry(5, 128, 128);
     const material = new THREE.MeshBasicMaterial({ map: earthTexture, color: 0xaaaaaa });
     const globe = new THREE.Mesh(geometry, material);
     worldGroup.add(globe);
 
     // --- CLOUDS LAYER ---
-const cloudTexture = loader.load('/img/clouds.jpg');
+const cloudTexture = loader.load('img/clouds.jpg');
 // Radius is 5.05 (Earth is 5) to sit just above the surface
 const cloudGeo = new THREE.SphereGeometry(5.05, 120, 120); 
 
@@ -168,7 +167,7 @@ worldGroup.add(clouds);
 
     // --- ISS SPRITE ---
     
-const spriteMap = loader.load('/img/ISS_text.png'); 
+const spriteMap = loader.load('img/ISS_text.png'); 
 const spriteMaterial = new THREE.SpriteMaterial({ map: spriteMap, transparent: true });
 const iss = new THREE.Sprite(spriteMaterial);
 iss.scale.set(0.4, 0.3, 1);
@@ -343,28 +342,4 @@ window.addEventListener('resize', () => {
     animate();
   </script>
 </body>
-
-=======
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>ES01 - ISS</title>
-</head>
-<body>
-
-	<script>
-		const API_URL = "http://api.open-notify.org/astros.json"
-		fetch(API_URL)
-		.then( r => r.json())
-		.then( data => {
-			const n = data.number
-			document.body.innerHTML = `Ci sono ${n} astronauti in orbita attualmente:<br>`
-			data.people.forEach( a => {
-				document.body.innerHTML += a.name + " 🚀 " + a.craft + "<br>"
-			})
-		})
-	</script>
-
-</body>
->>>>>>> 502466e8b00968d27650e84f9a35b3614b756653
 </html>
