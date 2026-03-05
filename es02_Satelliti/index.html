@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORBITAL_NAVIGATOR_V5</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --accent: #ffffff;
+            --bg: #050505;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg); color: white;
+            font-family: 'Inter', sans-serif; overflow: hidden; text-transform: uppercase;
+        }
+
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            padding: 40px; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: space-between;
+            pointer-events: none; z-index: 10;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: flex-start; }
+        h1 { margin: 0; font-weight: 600; font-size: 52px; line-height: 0.85; letter-spacing: -2px; }
+        
+        #tooltip {
+            position: absolute; background: var(--accent); color: black;
+            padding: 4px 10px; font-size: 11px; font-weight: 900;
+            display: none; pointer-events: none; z-index: 100;
+        }
+
+        .nav-hint { font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 10px; letter-spacing: 1px;}
+        .footer { display: flex; justify-content: space-between; font-size: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+        canvas { display: block; position: fixed; top: 0; left: 0; cursor: crosshair; }
+    </style>
+</head>
+<body>
+
+    <div id="tooltip">NULL</div>
+
+    <div id="ui-layer">
+        <div class="header">
+            <div>
+                <h1>Global<br>Navigation</h1>
+                <div class="nav-hint">L-CLICK: ROTATE / R-CLICK: PAN / SCROLL: ZOOM</div>
+            </div>
+            <div style="text-align: right; font-size: 10px; color: var(--accent);">
+                VER: 5.0.0 / ESM<br>STATUS: NAV_ACTIVE
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div id="sat-count">SYNCING DATA...</div>
+            <div id="hover-data">NO TARGET SELECTED</div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.162.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.162.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/satellite.js/dist/satellite.min.js"></script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const API_URL = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle';
+        const SCALE = 1 / 1000;
+        const EARTH_RADIUS = 6.371;
+
+        let scene, camera, renderer, controls, satGroup, points;
+        let satellites = []; 
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let tooltip = document.getElementById('tooltip');
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 5000);
+            camera.position.set(25, 15, 25);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            // Orbit Controls (Module Style)
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 8;
+            controls.maxDistance = 100;
+
+            // Earth: White Wireframe
+            const earthGeo = new THREE.SphereGeometry(EARTH_RADIUS, 64, 64);
+            const earthMat = new THREE.MeshBasicMaterial({ 
+                color: 0xffffff, wireframe: true, transparent: true, opacity: 0.1 
+            });
+            scene.add(new THREE.Mesh(earthGeo, earthMat));
+
+            satGroup = new THREE.Group();
+            scene.add(satGroup);
+
+            raycaster.params.Points.threshold = 0.1;
+
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('resize', onResize);
+            
+            fetchData();
+            animate();
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.text();
+                parseUniqueTLE(data);
+            } catch (e) { console.error("Fetch Error:", e); }
+        }
+
+        function parseUniqueTLE(raw) {
+            const lines = raw.split('\n');
+            const seenNames = new Set();
+            const positions = [];
+
+            for (let i = 0; i < lines.length - 2; i += 3) {
+                const name = lines[i].trim();
+                const tle1 = lines[i+1];
+                const tle2 = lines[i+2];
+                
+                if (!seenNames.has(name) && name !== "") {
+                    try {
+                        const satrec = satellite.twoline2satrec(tle1, tle2);
+                        satellites.push({ name, satrec });
+                        seenNames.add(name);
+                        positions.push(0, 0, 0); 
+                    } catch (err) { continue; }
+                }
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            const material = new THREE.PointsMaterial({ color: 0x00ff41, size: 0.08, transparent: true, opacity: 0.8 });
+            points = new THREE.Points(geometry, material);
+            satGroup.add(points);
+            document.getElementById('sat-count').innerText = `TOTAL UNIQUE OBJECTS: ${satellites.length}`;
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            tooltip.style.left = (event.clientX + 15) + 'px';
+            tooltip.style.top = (event.clientY + 15) + 'px';
+        }
+
+        function updatePhysics() {
+            if (!satellites.length || !points) return;
+            const now = new Date();
+            const posAttr = points.geometry.attributes.position.array;
+            for (let i = 0; i < satellites.length; i++) {
+                const pv = satellite.propagate(satellites[i].satrec, now);
+                if (pv.position) {
+                    posAttr[i * 3] = pv.position.x * SCALE;
+                    posAttr[i * 3 + 1] = pv.position.z * SCALE;
+                    posAttr[i * 3 + 2] = -pv.position.y * SCALE;
+                }
+            }
+            points.geometry.attributes.position.needsUpdate = true;
+        }
+
+        function checkHover() {
+            if (!points) return;
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(points);
+            if (intersects.length > 0) {
+                const sat = satellites[intersects[0].index];
+                tooltip.style.display = 'block';
+                tooltip.innerText = sat.name;
+                document.getElementById('hover-data').innerText = `TARGET: ${sat.name}`;
+                points.material.color.set(0xffffff);
+            } else {
+                tooltip.style.display = 'none';
+                points.material.color.set(0x00ff41);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            updatePhysics();
+            checkHover();
+            controls.update(); 
+            if (satGroup) satGroup.rotation.y += 0.0002;
+            renderer.render(scene, camera);
+        }
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        init();
+    </script>
+</body>
+</html>
