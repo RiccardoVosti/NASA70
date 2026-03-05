@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<<<<<<< HEAD
+
+<head>
+  <meta charset="UTF-8">
+  <title>ISS TRACKER | 3D_ORBIT_FIXED</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;700&display=swap" rel="stylesheet">
+
+  <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+  <script type="importmap">
+    {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+</script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #141414;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      text-transform: uppercase;
+
+    }
+
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      /* Interaction is enabled here */
+      pointer-events: auto;
+    }
+
+    .ui-layer {
+      position: absolute;
+      z-index: 10;
+      padding: 20px;
+      /* IMPORTANT: This lets clicks PASS THROUGH the UI to the globe */
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .container {
+      border-left: 1px solid #fff;
+      padding-left: 15px;
+
+    }
+
+
+
+    .label {
+      font-size: 10px;
+      color: #666;
+      font-weight: 700;
+      margin-bottom: 5px;
+
+      /* ADD THESE FOUR LINES */
+      display: flex;
+      /* Enables flexible layout */
+      align-items: center;
+      /* Vertically aligns image and text centers */
+      gap: 8px;
+      /* Replaces padding-right for consistent spacing */
+      text-transform: uppercase;
+    }
+
+    .label img {
+      /* Move your inline styles here for cleaner HTML */
+      width: 30px;
+      opacity: 0.4;
+      /* 40% as a decimal */
+      display: block;
+      /* Removes tiny space at the bottom of images */
+    }
+
+    .data {
+      font-size: 20px;
+      margin-bottom: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bottom-ui {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+    }
+
+    #time {
+      font-size: 32px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="canvas-container"></div>
+
+  <div class="ui-layer">
+    <div class="container">
+      <div class="label"><img src="/img/ISS2.png" alt="ISS icon" width="30px" style="opacity: 40%;">ISS ORBITAL DATA
+      </div>
+      <div id="lat" class="data">LAT --.----</div>
+      <div id="lon" class="data">LON --.----</div>
+      <div id="location" style="color: #ffffff; margin-top: 5px;font-size: 11px;">CONNECTING...</div>
+    </div>
+    <div class="bottom-ui">
+      <div id="time">00:00:00</div>
+      <div id="date">--/--/----</div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    let lastIssPos = new THREE.Vector3();
+
+    // --- SETUP ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    // --- ORBIT CONTROLS (This is where the magic happens) ---
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance = 6;
+    controls.maxDistance = 25;
+
+    const worldGroup = new THREE.Group();
+    scene.add(worldGroup);
+
+    // --- GLOBE ---
+    const loader = new THREE.TextureLoader();
+    const earthTexture = loader.load('/img/earth_black.jpg'); // Ensure this file exists!
+    const geometry = new THREE.SphereGeometry(5, 128, 128);
+    const material = new THREE.MeshBasicMaterial({ map: earthTexture, color: 0xaaaaaa });
+    const globe = new THREE.Mesh(geometry, material);
+    worldGroup.add(globe);
+
+    // --- CLOUDS LAYER ---
+const cloudTexture = loader.load('/img/clouds.jpg');
+// Radius is 5.05 (Earth is 5) to sit just above the surface
+const cloudGeo = new THREE.SphereGeometry(5.05, 120, 120); 
+
+const cloudMat = new THREE.MeshBasicMaterial({
+  map: cloudTexture,
+  transparent: true,
+  opacity: 1,         // Adjust for how "thick" you want clouds to look
+  blending: THREE.AdditiveBlending, // Makes the white clouds "pop" more
+  side: THREE.DoubleSide
+});
+
+const clouds = new THREE.Mesh(cloudGeo, cloudMat);
+worldGroup.add(clouds);
+
+    // --- ISS SPRITE ---
+    
+const spriteMap = loader.load('/img/ISS_text.png'); 
+const spriteMaterial = new THREE.SpriteMaterial({ map: spriteMap, transparent: true });
+const iss = new THREE.Sprite(spriteMaterial);
+iss.scale.set(0.4, 0.3, 1);
+worldGroup.add(iss);
+
+
+    
+
+    camera.position.z = 15;
+
+
+function createTextLabel(text) {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  canvas.width = 256;
+  canvas.height = 64;
+
+  // Style the text
+  context.font = 'bold 24px Inter, Arial';
+  context.fillStyle = 'white';
+  context.textAlign = 'center';
+  context.fillText(text, 128, 45);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  const spriteMaterial = new THREE.SpriteMaterial({ 
+    map: texture,
+    transparent: true,
+    depthTest: false,  // Allows it to be seen through the globe/other objects
+    depthWrite: false  // Prevents it from "cutting holes" in other objects
+  });
+  
+  const sprite = new THREE.Sprite(spriteMaterial);
+  
+  // FORCE this to be drawn last (higher number = drawn later)
+  sprite.renderOrder = 999; 
+  
+  // Adjust scale to keep text legible
+  sprite.scale.set(2, 0.5, 1); 
+  return sprite;
+}
+
+// --- PULSE EFFECT ---
+const pulseGeo = new THREE.RingGeometry(0.5, 0.51, 100);
+
+const pulseMat = new THREE.MeshBasicMaterial({
+  color: 0xffffff,      
+  transparent: true,
+  opacity: 0.8,
+  side: THREE.DoubleSide,
+  depthWrite: false // Fixes "box" transparency issues with PNGs
+});
+
+const pulse = new THREE.Mesh(pulseGeo, pulseMat);
+
+// DO NOT use iss.add(pulse); 
+// Instead, add it to the worldGroup so it doesn't inherit parent scaling
+worldGroup.add(pulse); 
+
+let pulseScale = 1;
+let pulseOpacity = 0.8;
+
+
+    // --- FUNCTIONS ---
+    function latLonToVector3(lat, lon, radius) {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+      return new THREE.Vector3(
+        -radius * Math.sin(phi) * Math.cos(theta),
+        radius * Math.cos(phi),
+        radius * Math.sin(phi) * Math.sin(theta)
+      );
+    }
+
+    let targetPos = new THREE.Vector3(0, 0, 5.5);
+
+    async function updateISS() {
+      const proxy = "https://corsproxy.io/?";
+      const target = encodeURIComponent("http://api.open-notify.org/iss-now.json?t=" + Date.now());
+      
+      try {
+        const r = await fetch(proxy + target);
+        const data = await r.json();
+        const lat = parseFloat(data.iss_position.latitude);
+        const lon = parseFloat(data.iss_position.longitude);
+
+        document.getElementById("lat").innerText = "LAT " + lat.toFixed(4);
+        document.getElementById("lon").innerText = "LON " + lon.toFixed(4);
+
+        targetPos = latLonToVector3(lat, lon, 5.5);
+        updateCountryName(lat, lon);
+      } catch (e) { console.error(e); }
+    }
+
+    async function updateCountryName(lat, lon) {
+      const geoApi = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+      try {
+        const r = await fetch(geoApi);
+        const data = await r.json();
+        document.getElementById("location").innerText = 
+          (data.address && data.address.country) ? data.address.country.toUpperCase() : "SOPRA - OCEANO";
+      } catch { document.getElementById("location").innerText = "OFFLINE"; }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("time").innerText = now.toLocaleTimeString('en-GB');
+      document.getElementById("date").innerText = now.toLocaleDateString('en-GB');
+    }
+
+    // --- ANIMATION LOOP ---
+function animate() {
+  requestAnimationFrame(animate);
+  
+  controls.update();
+  iss.position.lerp(targetPos, 0.05);
+
+  // 1. Keep pulse positioned on the ISS manually
+  pulse.position.copy(iss.position);
+
+  // 2. Pulse Animation Logic
+ pulseScale += 0.004;   
+
+pulseOpacity -= 0.004; 
+
+if (pulseOpacity <= 0) {
+  pulseScale = 0.1;    
+  pulseOpacity = 0.8;  
+}
+
+clouds.rotation.y += 0.00001;
+clouds.rotation.x += 0.00003;
+
+  // Since it's no longer a child of a scaled object, 
+  // uniform scaling (X, X, X) will keep it a perfect circle.
+  pulse.scale.set(pulseScale, pulseScale, pulseScale);
+  pulse.material.opacity = pulseOpacity;
+
+  // 3. Keep it facing the camera
+  pulse.quaternion.copy(camera.quaternion);
+
+  renderer.render(scene, camera);
+}
+
+
+//RESIZE WINDOW
+window.addEventListener('resize', () => {
+  // 1. Update Camera Aspect Ratio
+  camera.aspect = window.innerWidth / window.innerHeight;
+  
+  // 2. Recalculate Projection Matrix
+  // This is the "math" that tells Three.js how to project 3D to your 2D screen
+  camera.updateProjectionMatrix();
+
+  // 3. Update Renderer Size
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  
+  // 4. (Optional) Update HUD Camera if you added one
+  if (typeof hudCamera !== 'undefined') {
+    hudCamera.left = -window.innerWidth / 2;
+    hudCamera.right = window.innerWidth / 2;
+    hudCamera.top = window.innerHeight / 2;
+    hudCamera.bottom = -window.innerHeight / 2;
+    hudCamera.updateProjectionMatrix();
+  }
+});
+
+    // START
+    updateISS();
+    updateClock();
+    setInterval(updateISS, 5000);
+    setInterval(updateClock, 1000);
+    animate();
+  </script>
+</body>
+
+=======
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ES01 - ISS</title>
+</head>
+<body>
+
+	<script>
+		const API_URL = "http://api.open-notify.org/astros.json"
+		fetch(API_URL)
+		.then( r => r.json())
+		.then( data => {
+			const n = data.number
+			document.body.innerHTML = `Ci sono ${n} astronauti in orbita attualmente:<br>`
+			data.people.forEach( a => {
+				document.body.innerHTML += a.name + " 🚀 " + a.craft + "<br>"
+			})
+		})
+	</script>
+
+</body>
+>>>>>>> 502466e8b00968d27650e84f9a35b3614b756653
+</html>
