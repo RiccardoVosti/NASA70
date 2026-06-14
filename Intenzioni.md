@@ -6,7 +6,7 @@ Progetto 1: La conquista dello spazio
 
 # Titolo progetto
 Autore: Riccardo Vosti \
-[NASA 70](https://github.com/ixd-supsi/2026/tree/main/esempi/es06_array_7)
+[NASA 70](https://riccardovosti.github.io/NASA70/)
 
 
 ## Idea di base
