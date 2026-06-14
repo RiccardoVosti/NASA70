@@ -49,6 +49,7 @@ Google Fonts: Utilizzato per integrare i font Inter e Roboto Mono.
 
 JSON: Per raccogliere i vari progetti a tal modo di creare un CMS con i progetti, un metodo semplice per poi aggiungerne altri.
 
+Logo: É formato da una funzione con al interno una costante formata da carattere binario per dire per ogni lettera 3x3 quali quadrati sono bianchi.
 
 ```JavaScript
 function initNasaLogo(containerId) {
