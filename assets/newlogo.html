@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA 70 - Interactive Matrix Logo</title>
+    <style>
+        body {
+            background-color: transparent;
+            
+            margin: 0;
+          
+        }
+
+        #nasa-logo {
+            display: flex;
+            gap: 3px; /* Controls kerning between letters */
+        }
+
+        .letter {
+            display: grid;
+            grid-template-columns: repeat(3, clamp(10px, 2vw, 20px));
+            grid-template-rows: repeat(3, clamp(10px, 2vw, 20px));
+            gap: 3px; /* Controls spacing between the pixels */
+           
+        }
+
+        .block {
+        border-radius:3px;
+            background: transparent;
+            
+        }
+
+        /* Static White Blocks */
+        .block.is-white {
+            background: #ffffff;
+            transition: background 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        /* Interactive Hover: Turns Red instantly, fades out smoothly */
+        .block.is-white:hover {
+            background: #fc3d21;
+            
+            /* Instant color change on hover, no transform/scale */
+            transition: background 0s, box-shadow 0s;
+        }
+
+        /* Automated Snake Trail */
+        .block.is-snake {
+            background: #fc3d21 !important;
+            
+            transition: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="nasa-logo"></div>
+
+    <script>
+        // Exact binary sequence provided mapping 1 to filled and 0 to null
+        const sequences = [
+            '111101101', // N
+            '010111101', // A
+            '011010110', // S
+            '010111101', // A
+            '111011100', // 7
+            '111101111'  // 0
+        ];
+
+        const logoContainer = document.getElementById('nasa-logo');
+
+        // Build the 3x3 grids for each character
+        sequences.forEach(seq => {
+            const letterGrid = document.createElement('div');
+            letterGrid.className = 'letter';
+            
+            for (let char of seq) {
+                const block = document.createElement('div');
+                block.className = 'block';
+                if (char === '1') {
+                    block.classList.add('is-white');
+                }
+                letterGrid.appendChild(block);
+            }
+            
+            logoContainer.appendChild(letterGrid);
+        });
+
+        // Snake Animation Logic
+        const whiteBlocks = Array.from(document.querySelectorAll('.is-white'));
+        let snakeIndex = 0;
+
+        function runSnake() {
+            if (snakeIndex < whiteBlocks.length) {
+                // Light up current block
+                whiteBlocks[snakeIndex].classList.add('is-snake');
+                
+                // Turn off previous block (CSS transition handles the smooth fade)
+                if (snakeIndex > 0) {
+                    whiteBlocks[snakeIndex - 1].classList.remove('is-snake');
+                }
+                
+                snakeIndex++;
+                setTimeout(runSnake, 60); // Speed of the snake
+            } else {
+                // Clear the very last block
+                whiteBlocks[snakeIndex - 1].classList.remove('is-snake');
+                
+                // Loop the animation
+                setTimeout(() => {
+                    snakeIndex = 0;
+                    runSnake();
+                }, 2500); 
+            }
+        }
+
+        // Start animation shortly after load
+        setTimeout(runSnake, 1000);
+    </script>
+
+</body>
+</html>
