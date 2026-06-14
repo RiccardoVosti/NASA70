@@ -31,9 +31,7 @@ L'estetica del sito va dritta al punto: lo sfondo è nero profondo e i testi son
 Per i testi ho usato solo due tipi di carattere:  Un font pulito e moderno (Inter) per i titoli e le descrizioni, per garantire la massima facilità di lettura.Un font in stile "macchina da scrivere" (Roboto Mono) per le date, i tag e i metadati, scelto appositamente per dare al sito l'aspetto di un vero archivio scientifico.  Tutto in una sola schermata
 Per mantenere l'esperienza fluida, quando si clicca su un progetto non si viene mai mandati su un'altra pagina. Si apre semplicemente un pannello laterale che sposta delicatamente la griglia, permettendo di leggere i dettagli senza perdere mai il punto in cui ci si trovava. Anche i piccoli dettagli seguono questa logica interattiva: ad esempio, il logo NASA nel menu non è una semplice immagine, ma un piccolo "gioco" di pixel luminosi che reagisce al passaggio del mouse.  
 
-<video width="320" height="240" controls loop="" muted="" autoplay="">
-    <source src="https://github.com/RiccardoVosti/NASA70/blob/main/imgs/website.mp4" />
-</video>
+[<img src="imgs/website.gif" width="500" alt="Matrix Sci-fi core">]()
 
 [<img src="imgs/matrix.webp" width="500" alt="Matrix Sci-fi core">]()
 
@@ -41,13 +39,11 @@ Per mantenere l'esperienza fluida, quando si clicca su un progetto non si viene 
 ## Tecnologia usata
 HTML5 & CSS3: Utilizzati per definire la struttura semantica della pagina e per gestire l'intero sistema di griglia (matrice 16x7) tramite il modulo CSS Grid.
 
-JavaScript: Ho preferito l'uso di JavaScript puro per mantenere il codice leggero e performante, senza il sovraccarico di framework pesanti. Il linguaggio gestisce:
-
-La dinamica di zoom e pan (spostamento) sulla griglia.
-
-Il sistema di filtraggio dei progetti in tempo reale.
-
-La logica dell'animazione per il logo interattivo.
+JavaScript: Ho preferito l'uso di JavaScript puro per mantenere il codice leggero e performante, senza il sovraccarico di framework pesanti.
+Il linguaggio gestisce:
+-La dinamica di zoom e pan (spostamento) sulla griglia.
+-Il sistema di filtraggio dei progetti in tempo reale.
+-La logica dell'animazione per il logo interattivo.
 
 Google Fonts: Utilizzato per integrare i font Inter e Roboto Mono.
 
@@ -94,7 +90,6 @@ function initNasaLogo(containerId) {
     }
     setTimeout(runSnake, 1000);
 };
-image.src = url;
 ```
 
 ## Target e contesto d’uso
