@@ -1,3 +1,5 @@
+
+
 :root {
     /* High Contrast Sleek Grays */
     --bg-color: #080808; 
@@ -282,7 +284,7 @@ button.control-element:active, .custom-select-trigger:active {
 }
 #ui-bottombar a {
     color: var(--text-muted); font-size: 0.75rem; font-weight: 500; text-decoration: none;
-    transition: color 0.2s; letter-spacing: 1px; text-transform: uppercase; font-family: 'Roboto Mono', monospace;
+    transition: color 0.2s; letter-spacing: 1px; font-family: 'Roboto Mono', monospace;
 }
 #ui-bottombar a:hover { color: var(--nasa-red); }
 
