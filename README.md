@@ -6,7 +6,7 @@ Progetto 2: Un piccolo passo per un uomo, un grande balzo per l'umanità
 
 # NASA70 Archive
 Autore: Riccardo Vosti \
-[NASA 70](https://github.com/ixd-supsi/2026/tree/main/esempi/es06_array_7)
+[NASA 70](https://riccardovosti.github.io/NASA70/)
 
 
 ## Introduzione e tema
