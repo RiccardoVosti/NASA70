@@ -2,9 +2,9 @@ SUPSI 2026
 Corso d’interaction design, CV429.01  
 Docenti: A. Gysin, G. Profeta  
 
-Progetto 1: La conquista dello spazio
+Progetto 2:  Un piccolo passo per un uomo, un grande balzo per l'umanità
 
-# Titolo progetto
+# NASA70 Archive
 Autore: Riccardo Vosti \
 [NASA 70](https://riccardovosti.github.io/NASA70/)
 
