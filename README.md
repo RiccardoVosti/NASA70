@@ -4,7 +4,7 @@ Docenti: A. Gysin, G. Profeta
 
 Progetto 2: Un piccolo passo per un uomo, un grande balzo per l'umanità
 
-# Titolo progetto
+# NASA70 Archive
 Autore: Riccardo Vosti \
 [NASA 70](https://github.com/ixd-supsi/2026/tree/main/esempi/es06_array_7)
 
@@ -15,7 +15,11 @@ Il tema centrale del progetto è il parallelismo tra l'esplorazione dell'univers
 
 
 ## Riferimenti progettuali
-Dolor sit amet consectetur adipiscing elit duis tristique. Sociis natoque penatibus et magnis dis parturient montes nascetur. Est sit amet facilisis magna. Tellus rutrum tellus pellentesque eu. Dictum sit amet justo donec enim. Aliquam malesuada bibendum arcu vitae elementum curabitur vitae. Sed faucibus turpis in eu mi bibendum neque egestas congue. Tellus in metus vulputate eu scelerisque felis imperdiet proin. Dolor magna eget est lorem ipsum dolor. Sit amet mattis vulputate enim nulla. Elit pellentesque habitant morbi tristique senectus et. Vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt ornare massa.
+L'interfaccia si ispira alle sale di controllo NASA degli anni '70, trasformando il sito in una vera stazione di monitoraggio dati.
+
+Matrice come Strumentazione: La griglia 16x7 richiama i grandi schermi dei centri di controllo dove ogni progetto funge da "stazione" da analizzare.
+
+Esperienza Operativa: Navigare tramite zoom e trascinamento trasforma l'utente in un operatore di missione, rendendo la consultazione dei contenuti un atto di esplorazione attiva e non passiva. 
 
 [<img src="imgs/missioncontrol.jpg" width="500" alt="Mission control panel">]()
 
@@ -29,7 +33,7 @@ Per mantenere l'esperienza fluida, quando si clicca su un progetto non si viene 
 
 https://github.com/user-attachments/assets/38d1768e-a90e-45dd-b12b-1ac0aa1151b3
 
-[<img src="doc/cards.gif" width="500" alt="Magic trick">]()
+[<img src="imgs/matrix.webp" width="500" alt="Matrix Sci-fi core">]()
 
 
 ## Tecnologia usata
@@ -49,24 +53,44 @@ JSON: Per raccogliere i vari progetti a tal modo di creare un CMS con i progetti
 
 
 ```JavaScript
-const image = new Image();
-image.onload = () => {
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.texImage2D(
-		gl.TEXTURE_2D,
-		level,
-		internalFormat,
-		srcFormat,
-		srcType,
-		image
-	);
-	if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
-		gl.generateMipmap(gl.TEXTURE_2D);
-	} else {
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	}
+function initNasaLogo(containerId) {
+    const sequences = [
+        '111101101', '010111101', '011010110', '010111101', '111011100', '111101111'
+    ];
+    
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    sequences.forEach(seq => {
+        const letterGrid = document.createElement('div');
+        letterGrid.className = 'logo-letter';
+        for (let char of seq) {
+            const block = document.createElement('div');
+            block.className = 'logo-block';
+            if (char === '1') block.classList.add('is-white');
+            letterGrid.appendChild(block);
+        }
+        container.appendChild(letterGrid);
+    });
+
+    const whiteBlocks = Array.from(container.querySelectorAll('.logo-block.is-white'));
+    let snakeIndex = 0;
+
+    function runSnake() {
+        if (snakeIndex < whiteBlocks.length) {
+            whiteBlocks[snakeIndex].classList.add('is-snake');
+            if (snakeIndex > 0) whiteBlocks[snakeIndex - 1].classList.remove('is-snake');
+            snakeIndex++;
+            setTimeout(runSnake, 60); 
+        } else {
+            whiteBlocks[snakeIndex - 1].classList.remove('is-snake');
+            setTimeout(() => {
+                snakeIndex = 0;
+                runSnake();
+            }, 2500); 
+        }
+    }
+    setTimeout(runSnake, 1000);
 };
 image.src = url;
 ```
@@ -74,4 +98,4 @@ image.src = url;
 ## Target e contesto d’uso
 Il target di riferimento principale è costituito da utenti tra i 15 e i 30 anni, appassionati dello spazio e della NASA, alla ricerca di un'esperienza divulgativa interattiva. Tuttavia, il vero filtro d'accesso all'archivio non è l'età anagrafica, bensì l'alfabetizzazione digitale: l'interfaccia richiede una certa familiarità con i pattern di navigazione web contemporanei (zoom, drag & pan). Questo rende l'esperienza pienamente accessibile a chiunque — indipendentemente dall'età — possieda la giusta dimestichezza con l'esplorazione digitale.
 
-[<img src="doc/munari.jpg" width="300" alt="Supplemento al dizionario italiano">]()
+[<img src="imgs/target.jpg" width="300" alt="target digitalizzato">]()
