@@ -89,7 +89,7 @@
 		"tags": [
 			"planet",
 			"exoplanets",
-			"extreme words",
+			"extreme worlds",
 			"nasa archive",
 			"astronomy",
 			"deep space"
@@ -102,7 +102,7 @@
 			"moonprint_1.jpg",
 			"moonprint_2.jpg"
 		],
-		"url": "https://sofiaribeiromarques.github.io/NASA/progetto/index.html",
+		"url": "https://sofiaribeiromarques.github.io/NASA/",
 		"data": {
 			"giorno": 12,
 			"mese": 10,
@@ -125,7 +125,7 @@
 			"eyesonearth_1.jpg",
 			"eyesonearth_2.jpg"
 		],
-		"url": "https://carladegennaro.github.io/interaction_design/progetto_1.2/",
+		"url": "https://carladegennaro.github.io/interaction_design/index.html",
 		"data": {
 			"giorno": 13,
 			"mese": 11,
@@ -142,8 +142,8 @@
 		]
 	},
 	{
-		"titolo": "Lunar Archive Explorer",
-		"descrizione": "The Lunar Archive Explorer is a digital platform that allows you to navigate and consult the scientific data and high-resolution images collected during missions to the Moon.",
+		"titolo": "Apollo Landing Archive",
+		"descrizione": "Apollo Landing Archive is an interactive website showcasing lunar panoramas built from photographs taken during the Apollo missions. It reimagines Google Earth on the Moon’s surface, allowing users to explore landing sites through immersive, stitched views of the lunar landscape.",
 		"immagine": [
 			"lunararchive_1.jpg",
 			"lunararchive_2.jpg"
@@ -271,7 +271,7 @@
 			"beyondthemyth_1.jpg",
 			"beyondthemyth_2.jpg"
 		],
-		"url": "https://...",
+		"url": "https://kikerio.github.io/beyondthemyth/",
 		"data": {
 			"giorno": 9,
 			"mese": 7,
